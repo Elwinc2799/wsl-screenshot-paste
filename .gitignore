@@ -1,0 +1,53 @@
+# Screenshot files (if repo is used as template)
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.bmp
+
+
+!demo-screenshot.png
+
+# Log files
+*.log
+monitor.log
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Windows
+desktop.ini
+
+# WSL/Linux
+*~
+.directory
+
+# Temporary files
+*.tmp
+*.temp
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Node modules (if any future JS tooling is added)
+node_modules/
+
+# Python cache (if any future Python tooling is added)
+__pycache__/
+*.pyc
+*.pyo
+
+# Keep the screenshots directory structure but ignore contents
+screenshots/.gitkeep
+!screenshots/.gitkeep
+.claude/

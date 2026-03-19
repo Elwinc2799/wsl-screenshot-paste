@@ -78,6 +78,12 @@ The watcher is now running and will auto-start on every new terminal session.
 
 You can press `Ctrl+V` multiple times in the terminal to paste the same path again. Once you copy something else (text or a new image), the interception resets.
 
+### Works great with Claude Code
+
+When you paste the file path into a **Claude Code** session, it automatically appears as a bracketed image attachment — ready for Claude to analyse without any extra steps.
+
+![Claude Code demo](claude-code-demo.png)
+
 ---
 
 ## Auto-cleanup
