@@ -104,7 +104,8 @@ Then re-run `./setup.sh` to update the scheduled task.
 # Remove the auto-start lines from .zshrc
 sed -i '/# wsl-screenshot-paste/,+4d' ~/.zshrc
 
-# Remove the scheduled task
+# Remove the scheduled tasks
+powershell.exe -NoProfile -Command "Unregister-ScheduledTask -TaskName 'WSL Screenshot Watcher' -Confirm:\$false"
 powershell.exe -NoProfile -Command "Unregister-ScheduledTask -TaskName 'WSL Screenshot Cleanup' -Confirm:\$false"
 
 # Remove the installed scripts

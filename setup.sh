@@ -23,6 +23,18 @@ mkdir -p "$WIN_INSTALL_DIR"
 cp "$SCRIPT_DIR/screenshot-watcher.ps1" "$WIN_INSTALL_DIR/"
 cp "$SCRIPT_DIR/cleanup-screenshots.ps1" "$WIN_INSTALL_DIR/"
 
+# Register Task Scheduler to auto-start watcher on Windows login
+echo "Registering watcher auto-start task in Windows Task Scheduler..."
+powershell.exe -NoProfile -Command "
+    \$action = New-ScheduledTaskAction \
+        -Execute 'powershell.exe' \
+        -Argument \"-Sta -NoProfile -WindowStyle Hidden -ExecutionPolicy Bypass -File 'C:\Users\\$WIN_USER\AppData\Local\wsl-screenshot-monitor\screenshot-watcher.ps1'\"
+    \$trigger = New-ScheduledTaskTrigger -AtLogOn -User \$env:USERNAME
+    \$settings = New-ScheduledTaskSettingsSet -ExecutionTimeLimit 0 -RestartCount 3 -RestartInterval (New-TimeSpan -Minutes 1) -StartWhenAvailable
+    Register-ScheduledTask -TaskName 'WSL Screenshot Watcher' -Action \$action -Trigger \$trigger -Settings \$settings -Force | Out-Null
+    Write-Host 'Watcher task registered.'
+" 2>/dev/null
+
 # Register Task Scheduler to auto-clean screenshots every 12 hours
 echo "Registering cleanup task in Windows Task Scheduler..."
 powershell.exe -NoProfile -Command "
@@ -32,7 +44,7 @@ powershell.exe -NoProfile -Command "
     \$trigger = New-ScheduledTaskTrigger -RepetitionInterval (New-TimeSpan -Hours 12) -Once -At (Get-Date)
     \$settings = New-ScheduledTaskSettingsSet -ExecutionTimeLimit (New-TimeSpan -Minutes 1) -StartWhenAvailable
     Register-ScheduledTask -TaskName 'WSL Screenshot Cleanup' -Action \$action -Trigger \$trigger -Settings \$settings -Force | Out-Null
-    Write-Host 'Task registered.'
+    Write-Host 'Cleanup task registered.'
 " 2>/dev/null
 
 # Add auto-start snippet to .zshrc (skip if already present)
