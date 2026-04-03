@@ -30,20 +30,22 @@ powershell.exe -NoProfile -Command "
         -Execute 'powershell.exe' \
         -Argument \"-Sta -NoProfile -WindowStyle Hidden -ExecutionPolicy Bypass -File 'C:\Users\\$WIN_USER\AppData\Local\wsl-screenshot-monitor\screenshot-watcher.ps1'\"
     \$trigger = New-ScheduledTaskTrigger -AtLogOn -User \$env:USERNAME
-    \$settings = New-ScheduledTaskSettingsSet -ExecutionTimeLimit 0 -RestartCount 3 -RestartInterval (New-TimeSpan -Minutes 1) -StartWhenAvailable
-    Register-ScheduledTask -TaskName 'WSL Screenshot Watcher' -Action \$action -Trigger \$trigger -Settings \$settings -Force | Out-Null
+    \$settings = New-ScheduledTaskSettingsSet -ExecutionTimeLimit 0 -RestartCount 3 -RestartInterval (New-TimeSpan -Minutes 1) -StartWhenAvailable -MultipleInstances IgnoreNew
+    \$principal = New-ScheduledTaskPrincipal -UserId \$env:USERNAME -LogonType Interactive -RunLevel Limited
+    Register-ScheduledTask -TaskName 'WSL Screenshot Watcher' -Action \$action -Trigger \$trigger -Settings \$settings -Principal \$principal -Force | Out-Null
     Write-Host 'Watcher task registered.'
 " 2>/dev/null
 
-# Register Task Scheduler to auto-clean screenshots every 12 hours
+# Register Task Scheduler to auto-clean screenshots at 8 AM and 8 PM daily
 echo "Registering cleanup task in Windows Task Scheduler..."
 powershell.exe -NoProfile -Command "
     \$action = New-ScheduledTaskAction \
         -Execute 'powershell.exe' \
-        -Argument \"-NoProfile -WindowStyle Hidden -ExecutionPolicy Bypass -File 'C:\Users\\$WIN_USER\AppData\Local\wsl-screenshot-monitor\cleanup-screenshots.ps1'\"
-    \$trigger = New-ScheduledTaskTrigger -RepetitionInterval (New-TimeSpan -Hours 12) -Once -At (Get-Date)
+        -Argument \"-NoProfile -WindowStyle Hidden -ExecutionPolicy Bypass -File 'C:\Users\\$WIN_USER\AppData\Local\wsl-screenshot-monitor\cleanup-screenshots.ps1' -ScreenshotsDir 'C:\Users\\$WIN_USER\Pictures\Screenshots'\"
+    \$trigger = New-ScheduledTaskTrigger -RepetitionInterval (New-TimeSpan -Hours 12) -Once -At '8:00AM'
     \$settings = New-ScheduledTaskSettingsSet -ExecutionTimeLimit (New-TimeSpan -Minutes 1) -StartWhenAvailable
-    Register-ScheduledTask -TaskName 'WSL Screenshot Cleanup' -Action \$action -Trigger \$trigger -Settings \$settings -Force | Out-Null
+    \$principal = New-ScheduledTaskPrincipal -UserId \$env:USERNAME -LogonType Interactive -RunLevel Limited
+    Register-ScheduledTask -TaskName 'WSL Screenshot Cleanup' -Action \$action -Trigger \$trigger -Settings \$settings -Principal \$principal -Force | Out-Null
     Write-Host 'Cleanup task registered.'
 " 2>/dev/null
 
